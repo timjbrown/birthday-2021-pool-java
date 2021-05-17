@@ -3,19 +3,19 @@ import java.awt.Graphics;
 
 public class Ball {
 
-    private static double friction = .9;
+    static double friction = .9;
 
-    private double radius;
-    private Color color;
-    private Vector2d position; // pixels
-    private Vector2d velocity; // pixels per second
-    private Vector2d accel;
-    private String name;
-    private boolean moveable;
-    private boolean collidable;
-    private boolean alive;
-    private double lifetime;
-    private double lifespan;
+    double radius;
+    Color color;
+    Vector2 pos; // pixels
+    Vector2 vel; // pixels/second
+    Vector2 acc; // pixels/second/second
+    String name;
+    boolean moveable;
+    boolean collidable;
+    boolean alive;
+    double lifetime;
+    double lifespan;
 
     /**
      * Creates a Circle object with the given radius but random position,
@@ -23,22 +23,22 @@ public class Ball {
      * 
      * @param radius
      */
-    public Ball(double radius, Color color, Vector2d position,
-            Vector2d velocity, Vector2d accel, String name, boolean moveable,
-            boolean collidable, double lifespan) {
+    public Ball(double radius, Color color, Vector2 position, Vector2 velocity,
+            Vector2 accel, String name, boolean moveable, boolean collidable,
+            double lifespan) {
         this.radius = radius;
         this.color = color;
         if (color == null)
             this.color = randomColor();
-        this.position = position;
+        this.pos = position;
         if (position == null)
-            this.position = randomPosition();
-        this.velocity = velocity;
+            this.pos = randomPosition();
+        this.vel = velocity;
         if (velocity == null)
-            this.velocity = randomVelocity();
-        this.accel = accel;
+            this.vel = randomVelocity();
+        this.acc = accel;
         if (accel == null)
-            this.accel = new Vector2d(0, 0);
+            this.acc = new Vector2(0, 0);
         this.name = name;
         this.moveable = moveable;
         this.alive = true;
@@ -46,13 +46,13 @@ public class Ball {
         this.collidable = collidable;
     }
 
-    private Vector2d randomPosition() {
-        return new Vector2d(radius, Game.PANEL_WIDTH - radius, radius,
+    private Vector2 randomPosition() {
+        return new Vector2(radius, Game.PANEL_WIDTH - radius, radius,
                 Game.PANEL_HEIGHT - radius);
     }
 
-    private Vector2d randomVelocity() {
-        return new Vector2d(-100, 100, -100, 100);
+    private Vector2 randomVelocity() {
+        return new Vector2(-100, 100, -100, 100);
     }
 
     private Color randomColor() {
@@ -64,15 +64,14 @@ public class Ball {
      * Move the circle's location by it's velocity * elapsedTime
      */
     public void move(double elapsedTime) {
-        velocity.add(accel.multed(elapsedTime));
-        Vector2d frictionv = velocity.copy().mult(-1).mult(
-                friction * elapsedTime);
-        velocity.add(frictionv);
-        position.add(velocity.multed(elapsedTime));
+        Vector2 frictionv = vel.copy().mul(-1 * friction * elapsedTime);
 
-        if (velocity.magnitude() < .01) {
-            velocity.x = 0;
-            velocity.y = 0;
+        vel.add(acc.copy().mul(elapsedTime));
+        vel.add(frictionv);
+        pos.add(vel.copy().mul(elapsedTime));
+
+        if (vel.length() < .01) {
+            vel.zero();
         }
 
         lifetime += elapsedTime;
@@ -86,24 +85,24 @@ public class Ball {
     public boolean bounceOffWall() {
         boolean bounced = false;
         if (collidable) {
-            if (position.x - radius < 0) {
-                position.x = radius;
-                velocity.x *= -1;
+            if (pos.x - radius < 0) {
+                pos.x = radius;
+                vel.x *= -1;
                 bounced = true;
             }
-            if (position.y - radius < 0) {
-                position.y = radius;
-                velocity.y *= -1;
+            if (pos.y - radius < 0) {
+                pos.y = radius;
+                vel.y *= -1;
                 bounced = true;
             }
-            if (position.x + radius > Game.PANEL_WIDTH) {
-                position.x = Game.PANEL_WIDTH - radius;
-                velocity.x *= -1;
+            if (pos.x + radius > Game.PANEL_WIDTH) {
+                pos.x = Game.PANEL_WIDTH - radius;
+                vel.x *= -1;
                 bounced = true;
             }
-            if (position.y + radius > Game.PANEL_HEIGHT) {
-                position.y = Game.PANEL_HEIGHT - radius;
-                velocity.y *= -1;
+            if (pos.y + radius > Game.PANEL_HEIGHT) {
+                pos.y = Game.PANEL_HEIGHT - radius;
+                vel.y *= -1;
                 bounced = true;
             }
         }
@@ -117,7 +116,7 @@ public class Ball {
      * @return the distance between this and other.
      */
     public double distance(Ball other) {
-        return this.position.distance(other.position);
+        return this.pos.dist(other.pos);
     }
 
     /**
@@ -132,52 +131,12 @@ public class Ball {
 
     public void draw(Graphics g) {
         g.setColor(color);
-        Tools.fillCenteredCircle(g, radius, position.x, position.y);
+        Tools.fillCenteredCircle(g, radius, pos.x, pos.y);
         g.setColor(Color.black);
-        Tools.drawCenteredCircle(g, radius, position.x, position.y);
+        Tools.drawCenteredCircle(g, radius, pos.x, pos.y);
         if (name != null) {
             g.setColor(Color.white);
-            Tools.drawCenterString(g, name, position.x, position.y);
+            Tools.drawCenterString(g, name, pos.x, pos.y);
         }
-    }
-
-    public Color getColor() {
-        return color;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
-    }
-
-    public double getRadius() {
-        return radius;
-    }
-
-    public void setRadius(double radius) {
-        this.radius = radius;
-    }
-
-    public Vector2d getPosition() {
-        return position;
-    }
-
-    public Vector2d getVelocity() {
-        return velocity;
-    }
-
-    public boolean isMoveable() {
-        return moveable;
-    }
-
-    public boolean isAlive() {
-        return alive;
-    }
-
-    public void setAlive(boolean alive) {
-        this.alive = alive;
-    }
-
-    public boolean isCollidable() {
-        return collidable;
     }
 }

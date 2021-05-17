@@ -7,7 +7,7 @@ import javax.swing.JOptionPane;
 public class World {
     private ArrayList<Ball> balls;
     private ArrayList<Ball> pockets;
-    public Ball player;
+    public Ball cue;
     private double playerStartX = Game.PANEL_WIDTH / 2.0;
     private double playerStartY = Game.PANEL_HEIGHT * .75;
     private int ballRadius = 10;
@@ -30,9 +30,9 @@ public class World {
         int row = 0;
         int col = 0;
         for (int numBalls = 0; numBalls < name.length(); numBalls++) {
-            Vector2d p = new Vector2d(Game.PANEL_WIDTH / 2.0 - ballRadius * row
+            Vector2 p = new Vector2(Game.PANEL_WIDTH / 2.0 - ballRadius * row
                     + ballRadius * 2 * col, 200 - ballRadius * 2 * row);
-            Ball b = new Ball(ballRadius, null, p, new Vector2d(0, 0), null,
+            Ball b = new Ball(ballRadius, null, p, new Vector2(0, 0), null,
                     name.charAt(numBalls) + "", true, true, -1);
             balls.add(b);
             col++;
@@ -44,31 +44,29 @@ public class World {
 
         // Place pockets
         for (int i = 0; i < 6; i++) {
-            Vector2d p = new Vector2d(Game.PANEL_WIDTH * (i % 2),
+            Vector2 p = new Vector2(Game.PANEL_WIDTH * (i % 2),
                     Game.PANEL_HEIGHT / 2.0 * (i / 2));
             Ball pocket = new Ball(ballRadius, Color.black, p,
-                    new Vector2d(0, 0), null, null, false, true, -1);
+                    new Vector2(0, 0), null, null, false, true, -1);
             balls.add(pocket);
             pockets.add(pocket);
         }
 
         // Place player
-        Vector2d p = new Vector2d(playerStartX, playerStartY);
-        player = new Ball(ballRadius, Color.white, p, new Vector2d(0, 0), null,
+        Vector2 p = new Vector2(playerStartX, playerStartY);
+        cue = new Ball(ballRadius, Color.white, p, new Vector2(0, 0), null,
                 null, true, true, -1);
-        balls.add(player);
+        balls.add(cue);
     }
 
     /**
-     * Moves all circles by their current velocity. Detect collisions between
-     * circles. Resolve collisions between circles. Resolve collisions between
-     * walls.
+     * Steps the simulation once.
      * 
      * @param elapsedTime
-     *            the elapsed time between frames in seconds
+     *            the elapsed time between steps in seconds
      */
     public void step(double elapsedTime) {
-        int subframes = 4;
+        int subframes = 2;
         elapsedTime = elapsedTime / subframes;
 
         for (int f = 0; f < subframes; f++) {
@@ -77,18 +75,18 @@ public class World {
             resolveCollisions(pairs);
             bounceOffWalls();
             for (int i = 0; i < balls.size(); i++) {
-                if (!balls.get(i).isAlive()) {
+                if (!balls.get(i).alive) {
                     balls.remove(i);
                     i--;
                 }
             }
-            if (!player.isAlive()) {
-                player.setAlive(true);
-                player.getPosition().x = playerStartX;
-                player.getPosition().y = playerStartY;
-                player.getVelocity().x = 0;
-                player.getVelocity().y = 0;
-                balls.add(player);
+            if (!cue.alive) {
+                cue.alive = true;
+                cue.pos.x = playerStartX;
+                cue.pos.y = playerStartY;
+                cue.vel.x = 0;
+                cue.vel.y = 0;
+                balls.add(cue);
             }
             if (balls.size() < 8) {
                 won = true;
@@ -101,11 +99,10 @@ public class World {
 
     private void winAnimation() {
         double speed = 200;
-        Vector2d p = new Vector2d(Game.PANEL_WIDTH / 2,
-                Game.PANEL_HEIGHT * .48);
-        Vector2d v = new Vector2d(-speed * .8, speed * .8, -speed * 1.5,
+        Vector2 p = new Vector2(Game.PANEL_WIDTH / 2, Game.PANEL_HEIGHT * .48);
+        Vector2 v = new Vector2(-speed * .8, speed * .8, -speed * 1.5,
                 -speed * .5);
-        Vector2d a = new Vector2d(0, 200);
+        Vector2 a = new Vector2(0, 200);
         Ball b = new Ball(2, null, p, v, a, null, true, false, 2);
         balls.add(b);
     }
@@ -151,13 +148,13 @@ public class World {
                 Ball c1 = balls.get(i);
                 Ball c2 = balls.get(j);
                 Pair<Ball, Ball> p = new Pair<Ball, Ball>(c1, c2);
-                if (c1 != c2 && c1.isCollidable() && c2.isCollidable()
+                if (c1 != c2 && c1.collidable && c2.collidable
                         && c1.isColliding(c2)) {
-                    if (c1.isMoveable() && !c2.isMoveable()) {
-                        c1.setAlive(false);
+                    if (c1.moveable && !c2.moveable) {
+                        c1.alive = false;
                         Tools.playSound("sink.wav");
-                    } else if (c2.isMoveable() && !c1.isMoveable()) {
-                        c2.setAlive(false);
+                    } else if (c2.moveable && !c1.moveable) {
+                        c2.alive = false;
                         Tools.playSound("sink.wav");
                     } else
                         pairs.add(p);
@@ -193,23 +190,19 @@ public class World {
      */
     private void changePositions(Ball c1, Ball c2) {
         double distance = c1.distance(c2);
-        double overlap = .5 * (distance - c1.getRadius() - c2.getRadius());
+        double overlap = .5 * (distance - c1.radius - c2.radius);
 
-        if (c1.isMoveable()) {
-            if (!c2.isMoveable())
+        if (c1.moveable) {
+            if (!c2.moveable)
                 overlap *= 2;
-            c1.getPosition().x -= overlap
-                    * (c1.getPosition().x - c2.getPosition().x) / distance;
-            c1.getPosition().y -= overlap
-                    * (c1.getPosition().y - c2.getPosition().y) / distance;
+            c1.pos.x -= overlap * (c1.pos.x - c2.pos.x) / distance;
+            c1.pos.y -= overlap * (c1.pos.y - c2.pos.y) / distance;
         }
-        if (c2.isMoveable()) {
-            if (!c1.isMoveable())
+        if (c2.moveable) {
+            if (!c1.moveable)
                 overlap *= 2;
-            c2.getPosition().x += overlap
-                    * (c1.getPosition().x - c2.getPosition().x) / distance;
-            c2.getPosition().y += overlap
-                    * (c1.getPosition().y - c2.getPosition().y) / distance;
+            c2.pos.x += overlap * (c1.pos.x - c2.pos.x) / distance;
+            c2.pos.y += overlap * (c1.pos.y - c2.pos.y) / distance;
         }
     }
 
@@ -222,20 +215,20 @@ public class World {
     private void changeVelocities(Ball c1, Ball c2) {
         double mass = 1;
         double distance = c1.distance(c2);
-        double nx = (c2.getPosition().x - c1.getPosition().x) / distance;
-        double ny = (c2.getPosition().y - c1.getPosition().y) / distance;
+        double nx = (c2.pos.x - c1.pos.x) / distance;
+        double ny = (c2.pos.y - c1.pos.y) / distance;
         double tx = -ny;
         double ty = nx;
-        double kx = c1.getVelocity().x - c2.getVelocity().x;
-        double ky = c1.getVelocity().y - c2.getVelocity().y;
+        double kx = c1.vel.x - c2.vel.x;
+        double ky = c1.vel.y - c2.vel.y;
         double p = 2.0 * (nx * kx + ny * ky) / (mass + mass);
-        if (c1.isMoveable()) {
-            c1.getVelocity().x -= p * mass * nx;
-            c1.getVelocity().y -= p * mass * ny;
+        if (c1.moveable) {
+            c1.vel.x -= p * mass * nx;
+            c1.vel.y -= p * mass * ny;
         }
-        if (c2.isMoveable()) {
-            c2.getVelocity().x += p * mass * nx;
-            c2.getVelocity().y += p * mass * ny;
+        if (c2.moveable) {
+            c2.vel.x += p * mass * nx;
+            c2.vel.y += p * mass * ny;
         }
     }
 

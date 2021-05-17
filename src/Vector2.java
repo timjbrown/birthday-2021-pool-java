@@ -1,5 +1,5 @@
 
-public class Vector2d {
+public class Vector2 {
 
     public double x;
     public double y;
@@ -10,7 +10,7 @@ public class Vector2d {
      * @param x
      * @param y
      */
-    public Vector2d(double x, double y) {
+    public Vector2(double x, double y) {
         this.x = x;
         this.y = y;
     }
@@ -23,7 +23,7 @@ public class Vector2d {
      * @param minY
      * @param maxY
      */
-    public Vector2d(double minX, double maxX, double minY, double maxY) {
+    public Vector2(double minX, double maxX, double minY, double maxY) {
         this.x = Math.random() * (maxX - minX) + minX;
         this.y = Math.random() * (maxY - minY) + minY;
     }
@@ -33,8 +33,13 @@ public class Vector2d {
      * 
      * @return a copy of this vector.
      */
-    public Vector2d copy() {
-        return new Vector2d(x, y);
+    public Vector2 copy() {
+        return new Vector2(x, y);
+    }
+
+    public void zero() {
+        this.x = 0;
+        this.y = 0;
     }
 
     /**
@@ -43,7 +48,7 @@ public class Vector2d {
      * @param other
      * @return the distance between this and other.
      */
-    public double distance(Vector2d other) {
+    public double dist(Vector2 other) {
         return Math.sqrt((other.x - this.x) * (other.x - this.x)
                 + (other.y - this.y) * (other.y - this.y));
     }
@@ -53,8 +58,8 @@ public class Vector2d {
      * 
      * @return the magnitude of this vector.
      */
-    public double magnitude() {
-        return Math.abs(distance(new Vector2d(0, 0)));
+    public double length() {
+        return Math.abs(dist(new Vector2(0, 0)));
     }
 
     /**
@@ -62,22 +67,13 @@ public class Vector2d {
      * 
      * @return this vector normalized as a unit vector.
      */
-    public Vector2d normalize() {
-        double mag = magnitude();
-        if (mag == 0)
+    public Vector2 normal() {
+        double length = length();
+        if (length == 0)
             return this;
-        x /= mag;
-        y /= mag;
+        x /= length;
+        y /= length;
         return this;
-    }
-
-    /**
-     * Returns a copy of this vector normalized as a unit vector.
-     * 
-     * @return a copy of this vector normalized as a unit vector.
-     */
-    public Vector2d normalized() {
-        return copy().normalize();
     }
 
     /**
@@ -86,20 +82,10 @@ public class Vector2d {
      * @param percent
      * @return this vector scaled by the given percent
      */
-    public Vector2d mult(double amt) {
+    public Vector2 mul(double amt) {
         x *= amt;
         y *= amt;
         return this;
-    }
-
-    /**
-     * Returns a copy of this vector scaled by the given percent
-     * 
-     * @param percent
-     * @return a copy of this vector scaled by the given percent
-     */
-    public Vector2d multed(double amt) {
-        return copy().mult(amt);
     }
 
     /**
@@ -108,7 +94,7 @@ public class Vector2d {
      * @param other
      * @return this vector + other vector
      */
-    public Vector2d add(Vector2d other) {
+    public Vector2 add(Vector2 other) {
         this.x += other.x;
         this.y += other.y;
         return this;
@@ -120,30 +106,10 @@ public class Vector2d {
      * @param other
      * @return this vector + other vector
      */
-    public Vector2d added(Vector2d other) {
-        return copy().add(other);
-    }
-
-    /**
-     * Returns this vector + other vector
-     * 
-     * @param other
-     * @return this vector + other vector
-     */
-    public Vector2d sub(Vector2d other) {
+    public Vector2 sub(Vector2 other) {
         this.x -= other.x;
         this.y -= other.y;
         return this;
-    }
-
-    /**
-     * Returns this vector + other vector
-     * 
-     * @param other
-     * @return this vector + other vector
-     */
-    public Vector2d subbed(Vector2d other) {
-        return copy().sub(other);
     }
 
     /**

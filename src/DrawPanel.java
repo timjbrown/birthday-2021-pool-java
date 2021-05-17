@@ -34,9 +34,9 @@ public class DrawPanel extends JPanel implements ActionListener {
         world.step(Game.FRAME_TIME / 1000.0);
         world.draw(g, Game.PANEL_WIDTH, Game.PANEL_HEIGHT);
         if (mouseHeld) {
-            g.setColor(world.player.getColor());
-            g.drawLine(world.player.getPosition().intX(),
-                    world.player.getPosition().intY(), mouse.x, mouse.y);
+            g.setColor(world.cue.color);
+            g.drawLine(world.cue.pos.intX(), world.cue.pos.intY(), mouse.x,
+                    mouse.y);
         }
     }
 
@@ -50,11 +50,8 @@ public class DrawPanel extends JPanel implements ActionListener {
         @Override
         public void mouseReleased(MouseEvent e) {
             mouseHeld = false;
-            Vector2d mousePosition = new Vector2d(mouse.x, mouse.y);
-            Vector2d sub = world.player.getPosition().subbed(mousePosition);
-            world.player.getVelocity().x = sub.x;
-            world.player.getVelocity().y = sub.y;
-            world.player.getVelocity().mult(10);
+            Vector2 mousePosition = new Vector2(mouse.x, mouse.y);
+            world.cue.vel = world.cue.pos.copy().sub(mousePosition).mul(10);
             Tools.playSound("hit.wav");
         }
 
