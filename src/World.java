@@ -126,7 +126,7 @@ public class World {
         if (won) {
             g.setColor(Color.white);
             Tools.drawCenterString(g, "HAPPY BIRTHDAY " + name,
-                    Game.PANEL_WIDTH / 2.0, Game.PANEL_HEIGHT / 2.0);
+                    Game.PANEL_WIDTH / 2.0, Game.PANEL_HEIGHT * .23);
         }
     }
 
