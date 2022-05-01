@@ -5,25 +5,25 @@ import java.awt.Dimension;
 
 import javax.swing.JFrame;
 
-import controller.Settings;
+import model.Settings;
 
 public class Window extends JFrame {
 
-    private DrawPanel drawPanel;
+    private Canvas canvas;
 
     public Window() {
         setTitle("Birthday 2021");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setPreferredSize(new Dimension(Settings.drawRect.intWidth() + 5,
-                Settings.drawRect.intHeight() + 30));
+        setPreferredSize(new Dimension(Settings.canvasRect.intWidth() + 5,
+                Settings.canvasRect.intHeight() + 30));
         setResizable(false);
         setLayout(new BorderLayout());
 
-        drawPanel = new DrawPanel();
-        add(drawPanel, BorderLayout.CENTER);
+        canvas = new Canvas();
+        add(canvas, BorderLayout.CENTER);
     }
 
-    public DrawPanel getDrawPanel() {
-        return drawPanel;
+    public Canvas getCanvas() {
+        return canvas;
     }
 }

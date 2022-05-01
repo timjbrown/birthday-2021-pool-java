@@ -1,38 +1,41 @@
 package controller;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.Timer;
-
+import model.Settings;
 import model.World;
 import view.Window;
 
-public class Controller implements ActionListener {
+public class Controller {
 
-    private Timer drawTimer = new Timer(Settings.FRAME_TIME, this);
     private Window window;
     private World world;
 
     public Controller(Window window, World world) {
-        this.world = world;
         this.window = window;
-
-        this.window.getDrawPanel().setWorld(world);
-
-        MyMouseListener myMouseListener = new MyMouseListener(world);
-        window.getDrawPanel().addMouseListener(myMouseListener);
-        window.getDrawPanel().addMouseMotionListener(myMouseListener);
-        window.getDrawPanel().addMouseWheelListener(myMouseListener);
-
-        drawTimer.start();
+        this.world = world;
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == drawTimer) {
-            world.step(Settings.FRAME_TIME / 1000.0);
-            window.getDrawPanel().repaint();
+    public void play() {
+        window.getCanvas().setWorld(world);
+
+        MyMouseListener myMouseListener = new MyMouseListener(world);
+        window.getCanvas().addMouseListener(myMouseListener);
+        window.getCanvas().addMouseMotionListener(myMouseListener);
+        window.getCanvas().addMouseWheelListener(myMouseListener);
+
+        double previous = System.currentTimeMillis() / 1000.0;
+        double lag = 0;
+        while (true) {
+            double current = System.currentTimeMillis() / 1000.0;
+            double elapsed = current - previous;
+            previous = current;
+            lag += elapsed;
+
+            // processInput();
+            while (lag >= Settings.FRAME_TIME) {
+                world.step(Settings.FRAME_TIME);
+                lag -= Settings.FRAME_TIME;
+            }
+            window.getCanvas().repaint();
         }
     }
 }

@@ -3,7 +3,7 @@ package controller;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import engine.Inputs;
+import model.Inputs;
 import model.World;
 import models.Vector2;
 import tools.SoundTools;

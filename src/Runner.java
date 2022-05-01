@@ -1,7 +1,7 @@
-package controller;
 
 import javax.swing.JOptionPane;
 
+import controller.Controller;
 import model.World;
 import view.Window;
 
@@ -18,5 +18,7 @@ public class Runner {
 
         window.pack();
         window.setVisible(true);
+
+        controller.play();
     }
 }

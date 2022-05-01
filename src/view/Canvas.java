@@ -5,26 +5,26 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-import controller.Settings;
-import engine.Inputs;
+import model.Inputs;
+import model.Settings;
 import model.World;
 import models.Vector2;
 
 @SuppressWarnings("serial")
-public class DrawPanel extends JPanel {
+public class Canvas extends JPanel {
 
     private World world;
 
-    public DrawPanel() {
-        this.setPreferredSize(new Dimension(Settings.drawRect.intWidth(),
-                Settings.drawRect.intHeight()));
+    public Canvas() {
+        this.setPreferredSize(new Dimension(Settings.canvasRect.intWidth(),
+                Settings.canvasRect.intHeight()));
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        world.draw(g, Settings.drawRect.intWidth(),
-                Settings.drawRect.intHeight());
+        world.draw(g, Settings.canvasRect.intWidth(),
+                Settings.canvasRect.intHeight());
         if (Inputs.mouseHeld) {
             g.setColor(world.cue.getColor());
             Vector2 mouse = Inputs.mouseCurrentPos;

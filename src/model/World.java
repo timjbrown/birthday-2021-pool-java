@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
-import controller.Settings;
 import models.Pair;
 import models.Vector2;
 import tools.ColorTools;
@@ -31,7 +30,7 @@ public class World {
         int row = 0;
         int col = 0;
         for (int numBalls = 0; numBalls < name.length(); numBalls++) {
-            Vector2 p = new Vector2(Settings.drawRect.getWidth() / 2.0
+            Vector2 p = new Vector2(Settings.canvasRect.getWidth() / 2.0
                     - Settings.ballRadius * row + Settings.ballRadius * 2 * col,
                     200 - Settings.ballRadius * 2 * row);
             Circle c = new Circle();
@@ -51,8 +50,8 @@ public class World {
 
         // Place pockets
         for (int i = 0; i < 6; i++) {
-            Vector2 p = new Vector2(Settings.drawRect.getWidth() * (i % 2),
-                    Settings.drawRect.getHeight() / 2.0 * (i / 2));
+            Vector2 p = new Vector2(Settings.canvasRect.getWidth() * (i % 2),
+                    Settings.canvasRect.getHeight() / 2.0 * (i / 2));
             Circle c = new Circle();
             c.setRadius(Settings.ballRadius);
             c.setColor(Color.black);
@@ -104,8 +103,8 @@ public class World {
 
     private void winAnimation() {
         double speed = 200;
-        Vector2 p = new Vector2(Settings.drawRect.getWidth() / 2,
-                Settings.drawRect.getHeight() * .48);
+        Vector2 p = new Vector2(Settings.canvasRect.getWidth() / 2,
+                Settings.canvasRect.getHeight() * .48);
         Vector2 v = new Vector2(-speed * .7, speed * .7, -speed * 1.5,
                 -speed * .5);
         Vector2 a = new Vector2(0, 300);
@@ -131,8 +130,8 @@ public class World {
         if (won) {
             g.setColor(Color.white);
             DrawTools.drawString(g, "HAPPY BIRTHDAY " + name,
-                    Settings.drawRect.getWidth() / 2.0,
-                    Settings.drawRect.getHeight() * .23);
+                    Settings.canvasRect.getWidth() / 2.0,
+                    Settings.canvasRect.getHeight() * .23);
         }
     }
 
@@ -176,7 +175,7 @@ public class World {
 
     private void bounceOffWalls() {
         for (Circle c : balls) {
-            if (PhysTools.bounceOffWalls(Settings.drawRect, c,
+            if (PhysTools.bounceOffWalls(Settings.canvasRect, c,
                     Settings.wallRestitution)) {
                 SoundTools.playSound("bounce.wav");
             }
